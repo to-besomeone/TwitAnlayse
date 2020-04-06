@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Twitter Analyzer</title>
+{% endblock %}
+
+
+{% block body %}
+    <div class="content">
+        <h1>Twitter Keyword Analyzer</h1>
+        <table>
+            <tr>
+                <th>User</th>
+                <th>Tweet</th>
+                <th>Date</th>
+            </tr>
+            {% for tweet in tweets %}
+                <tr>
+                    <td>{{ tweet.user.name}}</td>
+                    <td>{{ tweet.text }}</td>
+                    <td>{{ tweet.created_at }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+        <form action="/" method="POST">
+            <input type="text" name="content" id="content">
+            <input type="date" name="since" id="sdate">
+            <input type="date" name="until" id="udate">
+            <input type="submit" value="search" onclick="dateValidate()">
+        </form>
+    </div>
+
+{% endblock %}
