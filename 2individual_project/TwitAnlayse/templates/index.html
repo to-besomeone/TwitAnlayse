@@ -6,28 +6,66 @@
 
 
 {% block body %}
+
     <div class="content">
-        <h1>Twitter Keyword Analyzer</h1>
-        <table>
-            <tr>
-                <th>User</th>
-                <th>Tweet</th>
-                <th>Date</th>
-            </tr>
-            {% for tweet in tweets %}
-                <tr>
-                    <td>{{ tweet.user.name}}</td>
-                    <td>{{ tweet.text }}</td>
-                    <td>{{ tweet.created_at }}</td>
-                </tr>
-            {% endfor %}
-        </table>
-        <form action="/" method="POST">
-            <input type="text" name="content" id="content">
-            <input type="date" name="since" id="sdate">
-            <input type="date" name="until" id="udate">
-            <input type="submit" value="search" onclick="dateValidate()">
-        </form>
+        <section class="blue-content">
+            <div class="app-name">
+                <h1>Twitter Keyword Analyzer</h1>
+            </div>
+            <div class="search-box">
+                <form action="/" method="POST">
+                    <div class="form-group">
+                        <input type="text" class="form-control" name="content" id="keyword-input" placeholder="What keyword do you want to analyze?">
+                    </div>
+                    <div class="form-group mx-sm-3 mb-2">
+                        <input type="text" name="since" id="since-when" placeholder="choose a date">
+                        <input type="text" name="until" id="until-when" placeholder="choose a date">
+                        <script>
+                            $('#since-when').datepicker({
+                                changeMonth: true,
+                                changeYear: true,
+                                dateFormat: "yy-mm-dd",
+                                maxDate: "-3d",
+                                onClose: function(selectedDate){
+                                    $('#until-when').datepicker("option", "minDate", selectedDate);
+                                    var date = $(this).datepicker('getDate');
+                                    date.setDate(date.getDate()+3);
+                                    $('#until-when').datepicker("option", "maxDate", date);
+                                }
+                            });
+                            $('#until-when').datepicker({
+                                changeMonth: true,
+                                changeYear: true,
+                                dateFormat: "yy-mm-dd",
+                                maxDate: "0",
+                                onClose: function(selectedDate){
+                                    $('#since-when').datepicker("option", "maxDate", selectedDate);
+                                }
+                            });
+                        </script>
+                    </div>
+                    <div class="form-group mx-sm-3 mb-2">
+                        <input type="email" name="email" id="email" placeholder="e-mail">
+                    </div>
+                    <button type="submit" class="btn btn-primary mb-2">search</button>
+                </form>
+            </div>
+            <table>
+                {% for tweet in tweets %}
+                    <tr>
+                        <th>User</th>
+                        <th>Tweet</th>
+                        <th>Date</th>
+                    </tr>
+                    <tr>
+                        <td>{{ tweet[0] }}</td>
+                        <td>{{ tweet[1] }}</td>
+                        <td>{{ tweet[2] }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </section>
+        <section class="white-content"></section>
     </div>
 
 {% endblock %}
