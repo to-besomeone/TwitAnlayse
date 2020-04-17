@@ -13,10 +13,10 @@ from nltk.corpus import stopwords
 app = Flask(__name__)
 
 # keys
-consumer_key = "gkMzEcz5kOrNnv6CIjvSFZTVk"
-consumer_secret = "dPvaQsqdUwAmVsYDJO55tqtys3JfBO7Y1TLwqJ5Zdg1LfF4stg"
-access_token = "1236798377465196545-UmW0J0bfIO7udunJL3TYsfTllRbzar"
-access_secret = "rB0fo5jaPu3n6HD4GIVqm8jSp6VQZS9rYwEUquAMa79l9"
+consumer_key =[ consumer key ]
+consumer_secret = [ consumer secret key ]
+access_token = [ access token ]
+access_secret = [ access secret key ]
 
 # 1. Make Handler and request identify personal info
 auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
