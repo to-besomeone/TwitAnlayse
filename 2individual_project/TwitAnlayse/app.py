@@ -1,29 +1,12 @@
-from flask import Flask, render_template, url_for, request
-import tweepy
+from flask import Flask, render_template, request
 import pandas as pd
-import matplotlib.pyplot as plt
 import GetOldTweets3 as got
 import pymongo
 import datetime, time
-import re
-import nltk
-from nltk.corpus import stopwords
 
+import analyze
 
 app = Flask(__name__)
-
-# keys
-consumer_key = "gkMzEcz5kOrNnv6CIjvSFZTVk"
-consumer_secret = "dPvaQsqdUwAmVsYDJO55tqtys3JfBO7Y1TLwqJ5Zdg1LfF4stg"
-access_token = "1236798377465196545-UmW0J0bfIO7udunJL3TYsfTllRbzar"
-access_secret = "rB0fo5jaPu3n6HD4GIVqm8jSp6VQZS9rYwEUquAMa79l9"
-
-# 1. Make Handler and request identify personal info
-auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
-# 2. Request for Access
-auth.set_access_token(access_token, access_secret)
-# 3. Make Twitter API
-api = tweepy.API(auth)
 
 connection = pymongo.MongoClient('localhost', 27017)
 collection = connection.test.twitanalyzer
@@ -44,7 +27,10 @@ def index():
 
         processed_list = pd.DataFrame(tweets, columns = ["userID", "text", "date", "time"])
 
-        analyze_data(processed_list, keyword)
+        (frequency_result, relative_result) = analyze.analyze_data(processed_list, keyword)
+
+
+
         # 1. 데이터분석이 완료되면 def draw_html()
         # 4.if (def draw_html) : def send_mail(ObjectId)
 
@@ -94,41 +80,6 @@ def save_data(tweet_list, keyword, email, since_date, until_date):
     ]
     objectID = collection.insert_many(new_documents).inserted_ids
     return objectID
-
-
-def analyze_data(data, keyword):
-    # filtering text data
-    data[keyword] = data.apply(lambda data: frequency_validation(data, keyword), axis=1)
-    is_valid = data[keyword]==True
-    valid_set = data[is_valid]
-
-    # frequency analyze
-    counts = valid_set["date"].value_counts().sort_index()
-    plt.title("Frequency of Keywords by date")
-    plt.ylabel("number of tweets")
-    counts.plot(kind='bar')
-    plt.show()
-    print(counts)
-
-    # relation analyze
-    valid_set["raw_data"] = valid_set.apply(lambda valid_set: re.sub('[^a-zA-z]', ' ', valid_set["text"]), axis=1)
-    valid_set["raw_data_edited"] = valid_set.apply(lambda valid_set: valid_set["raw_data"].lower().split(), axis=1)
-
-    print(valid_set)
-    # stop = set(stopwords.words('english'))
-    # processed_data = [word for word in valid_set["raw_data"] if not word in stop]
-    #
-    # stemmer = nltk.stem.SnowballStemmer('english')
-    # stemmer_words = [stemmer.stem(word) for word in processed_data]
-    #
-
-    return True
-
-def frequency_validation(data, keyword):
-    text = data["text"]
-    if keyword in text:
-        return True
-    return False
 
 # def draw_html():
 # 2. html 다 그리면 if(def save_to_pdf(htmlstring):) return true
