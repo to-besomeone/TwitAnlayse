@@ -176,10 +176,10 @@ def frequency_validation(data, keyword):
 
 def mail_send(ObjectID):
     smtp = smtplib.SMTP_SSL('smtp.gmail.com', 465)
-    smtp.login('evillion99@gmail.com', 'fvxkaiqwlbgshdql')
+    smtp.login('yourmail@gmail.com', 'password')
     msg = MIMEMultipart()
     msg['Subject'] = 'TEST'
-    msg['From'] = 'evillion99@gmail.com'
+    msg['From'] = 'yourmail@gmail.com'
 
     with open("C:/Users/kimjiwoo/Desktop/Ireland/2individual_project/TwitAnlayse/example.pdf", "rb") as attachment:
         part = MIMEBase("application", "octet-stream")
@@ -194,7 +194,7 @@ def mail_send(ObjectID):
     msg.attach(part)
     receiver = collection.find_one({"_id": ObjectID[0]}, {"email": 1})['email']
 
-    smtp.sendmail('evillion99@gmail.com', receiver, msg.as_string())
+    smtp.sendmail('yourmail@gmail.com', receiver, msg.as_string())
     smtp.quit()
     return True
 
