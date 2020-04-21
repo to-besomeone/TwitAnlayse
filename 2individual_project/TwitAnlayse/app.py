@@ -17,6 +17,7 @@ import smtplib
 from email import encoders
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
+import constantinfo
 
 app = Flask(__name__)
 
@@ -96,8 +97,8 @@ def draw_html_to_pdf(frequency_result, relative_result, frequency_graph, relativ
     html_string+="<img width=500 src=\'data:image/png;base64,{0}".format(frequency_graph)
     html_string+="\'/><br><br><img width=500 src=\'data:image/png;base64,{0}".format(relative_graph)
     html_string+="\'/></body></html>"
-    path_wkhtmltopdf = r'C:\Users\kimjiwoo\Desktop\Ireland\2individual_project\TwitAnlayse\static\wkhtmltox\bin\wkhtmltopdf.exe'
-    config = pdfkit.configuration(wkhtmltopdf = path_wkhtmltopdf)
+    path_wkhtmltopdf = r'.\static\wkhtmltox\bin\wkhtmltopdf.exe'
+    config = pdfkit.configuration(wkhtmltopdf=path_wkhtmltopdf)
     pdfkit.from_string(html_string, 'example.pdf', configuration=config)
     return True
 
@@ -157,7 +158,6 @@ def analyze_data(data, keyword):
     wc = WordCloud(width=1000, height=600, background_color="#1DA1F2", random_state=0)
     plt.imshow(wc.generate_from_frequencies(fd_list))
     plt.axis("off")
-    relative_fig = plt.figure()
     plt.show()
     wc.to_file("./resource/relative_graph.png")
     with open("./resource/relative_graph.png", "rb") as imageFile:
@@ -176,12 +176,12 @@ def frequency_validation(data, keyword):
 
 def mail_send(ObjectID):
     smtp = smtplib.SMTP_SSL('smtp.gmail.com', 465)
-    smtp.login('evillion99@gmail.com', 'fvxkaiqwlbgshdql')
+    smtp.login(constantinfo.password.mymail, constantinfo.password.password)
     msg = MIMEMultipart()
     msg['Subject'] = 'TEST'
-    msg['From'] = 'evillion99@gmail.com'
+    msg['From'] = constantinfo.password.mymail
 
-    with open("C:/Users/kimjiwoo/Desktop/Ireland/2individual_project/TwitAnlayse/example.pdf", "rb") as attachment:
+    with open(constantinfo.directory.file_directory+"example.pdf", "rb") as attachment:
         part = MIMEBase("application", "octet-stream")
         part.set_payload(attachment.read())
 
@@ -194,7 +194,7 @@ def mail_send(ObjectID):
     msg.attach(part)
     receiver = collection.find_one({"_id": ObjectID[0]}, {"email": 1})['email']
 
-    smtp.sendmail('evillion99@gmail.com', receiver, msg.as_string())
+    smtp.sendmail(constantinfo.password.mymail, receiver, msg.as_string())
     smtp.quit()
     return True
 
