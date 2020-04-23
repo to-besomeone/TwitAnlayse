@@ -21,12 +21,10 @@ from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
 
 import constantinfo
-
 app = Flask(__name__)
 
 connection = pymongo.MongoClient('localhost', 27017)
 collection = connection.test.twitanalyzer
-
 
 @app.route('/', methods=['POST', 'GET'])
 def index():
@@ -43,7 +41,7 @@ def index():
 
         processed_list = pd.DataFrame(tweets, columns=["userID", "text", "date", "time"])
 
-        frequency_result, relative_result, frequency_graph, relative_graph = analyze_data(processed_list, keyword)
+        frequency_result, relative_result, frequency_graph, relative_graph = analyze_data(processed_list, keyword, objectID)
 
         if draw_html_to_pdf(frequency_result, relative_result, frequency_graph, relative_graph):
             mail_send(objectID)
@@ -51,7 +49,6 @@ def index():
         return render_template('index.html', tweets=tweets)
     else:
         return render_template('index.html')
-
 
 def data_crawl(keyword, since_date, until_date):
     tweet_list = []
@@ -94,21 +91,7 @@ def save_data(tweet_list, keyword, email, since_date, until_date):
     objectID = collection.insert_many(new_documents).inserted_ids
     return objectID
 
-def draw_html_to_pdf(frequency_result, relative_result, frequency_graph, relative_graph):
-    html_string = "<!DOCTYPE html><head><meta charset=\'UTF-8\'></head><body><div><h1>Result</h1></div><div><h3>How many times does it mentioned?</h3>"
-    html_string+="</div><div><img width=500 src=\'data:image/png;base64, {0}".format(frequency_graph)
-    html_string+="\'/><br></div><div><h3>What words are mentioned together?</h3></div>"
-    html_string+="<div><img width=500 src=\'data:image/png;base64, {0}".format(relative_graph)
-    html_string+="\'/></div><div><h4>the most frequent mentioned together word is "+str(relative_result[0][0])+"</h4></div><div>"
-    for i in range(5):
-        html_string+="<h5>"+str(i+1)+". "+str(relative_result[i][0])+" was mentioned "+str(relative_result[i][1])+" times.</h5>"
-    html_string+="</div></body></html>"
-    path_wkhtmltopdf = r'.\static\wkhtmltox\bin\wkhtmltopdf.exe'
-    config = pdfkit.configuration(wkhtmltopdf=path_wkhtmltopdf)
-    pdfkit.from_string(html_string, 'example.pdf', configuration=config)
-    return True
-
-def analyze_data(data, keyword):
+def analyze_data(data, keyword, objectID):
     # filtering text data
     data[keyword] = data.apply(lambda data: frequency_validation(data, keyword), axis=1)
     is_valid = data[keyword]==True
@@ -168,6 +151,10 @@ def analyze_data(data, keyword):
         relative_graph = base64.b64encode(imageFile.read()).decode('ascii')
     rel_list = fd_list.most_common(20)
 
+    collection.update_one({
+        {"_id" : objectID[0]}, {"$set": {"analyzed" : True}}
+    })
+
     return counts, rel_list, frequency_graph, relative_graph
 
 def frequency_validation(data, keyword):
@@ -176,6 +163,21 @@ def frequency_validation(data, keyword):
         return True
     return False
 
+def draw_html_to_pdf(frequency_result, relative_result, frequency_graph, relative_graph):
+    html_string = "<!DOCTYPE html><head><meta charset=\'UTF-8\'></head><body><div><h1>Result</h1></div><div><h3>How many times does it mentioned?</h3>"
+    html_string += "</div><div><img width=500 src=\'data:image/png;base64, {0}".format(frequency_graph)
+    html_string += "\'/><br></div><div><h3>What words are mentioned together?</h3></div>"
+    html_string += "<div><img width=500 src=\'data:image/png;base64, {0}".format(relative_graph)
+    html_string += "\'/></div><div><h4>the most frequent mentioned together word is " + str(
+        relative_result[0][0]) + "</h4></div><div>"
+    for i in range(5):
+        html_string += "<h5>" + str(i + 1) + ". " + str(relative_result[i][0]) + " was mentioned " + str(
+            relative_result[i][1]) + " times.</h5>"
+    html_string += "</div></body></html>"
+    path_wkhtmltopdf = r'.\static\wkhtmltox\bin\wkhtmltopdf.exe'
+    config = pdfkit.configuration(wkhtmltopdf=path_wkhtmltopdf)
+    pdfkit.from_string(html_string, 'example.pdf', configuration=config)
+    return True
 
 def mail_send(ObjectID):
     smtp = smtplib.SMTP_SSL('smtp.gmail.com', 465)
@@ -203,10 +205,10 @@ def mail_send(ObjectID):
     )
 
     msg.attach(part)
-
-
     smtp.sendmail(constantinfo.password.mymail, receiver, msg.as_string())
     smtp.quit()
+
+    collection.update_one({"_id" : ObjectID[0]}, {"$set": {"sent" : True}})
     return True
 
 if __name__ == '__main__':
