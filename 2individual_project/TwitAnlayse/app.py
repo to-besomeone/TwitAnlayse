@@ -91,7 +91,7 @@ def save_data(tweet_list, keyword, email, since_date, until_date):
     objectID = collection.insert_many(new_documents).inserted_ids
     return objectID
 
-def analyze_data(data, keyword, objectID):
+def analyze_data(data, keyword, ObjectID):
     # filtering text data
     data[keyword] = data.apply(lambda data: frequency_validation(data, keyword), axis=1)
     is_valid = data[keyword]==True
@@ -103,11 +103,12 @@ def analyze_data(data, keyword, objectID):
     plt.ylabel("number of tweets")
     counts.plot(kind='bar')
     frequency_fig = plt.gcf()
-    plt.show()
+    # plt.show()
     frequency_fig.savefig('./resource/frequency_graph.png', dpi=600)
     with open("./resource/frequency_graph.png", "rb") as imageFile:
         frequency_graph = base64.b64encode(imageFile.read()).decode('ascii')
-    print(counts)
+    # print(counts)
+
     valid_set.is_copy = None
     # relation analyze
     valid_set["raw_data"] = valid_set.apply(lambda valid_set: re.sub('[^a-zA-z]', ' ', valid_set["text"]), axis=1)
@@ -151,9 +152,7 @@ def analyze_data(data, keyword, objectID):
         relative_graph = base64.b64encode(imageFile.read()).decode('ascii')
     rel_list = fd_list.most_common(20)
 
-    collection.update_one({
-        {"_id" : objectID[0]}, {"$set": {"analyzed" : True}}
-    })
+    collection.update_one({"_id" : ObjectID[0]}, {"$set": {"analyzed" : True}})
 
     return counts, rel_list, frequency_graph, relative_graph
 

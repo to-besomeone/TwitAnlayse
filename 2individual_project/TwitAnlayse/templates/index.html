@@ -18,8 +18,8 @@
                         <input type="text" class="form-control" name="content" id="keyword-input" placeholder="What keyword do you want to analyze?">
                     </div>
                     <div class="form-group mx-sm-3 mb-2">
-                        <input type="text" name="since" id="since-when" placeholder="choose a date">
-                        <input type="text" name="until" id="until-when" placeholder="choose a date">
+                        <input autocomplete = "off" type="text" name="since" id="since-when" placeholder="choose a date" readonly>
+                        <input autocomplete = "off" type="text" name="until" id="until-when" placeholder="choose a date" readonly>
                         <script>
                             $('#since-when').datepicker({
                                 changeMonth: true,
@@ -46,6 +46,16 @@
                     </div>
                     <div class="form-group mx-sm-3 mb-2">
                         <input type="email" name="email" id="email" placeholder="e-mail">
+                        <script>
+                            $(document).onsubmit(function(){
+                                var emailPattern = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+\.([a-zA-Z0-9-]+)$/;
+                                if(!emailPattern.test($('#email').val())){
+                                    alert("Please recheck your email");
+                                    $('#email').focus();
+                                    return false;
+                                }
+                            })
+                        </script>
                     </div>
                     <button type="submit" class="btn btn-primary mb-2">search</button>
                 </form>
