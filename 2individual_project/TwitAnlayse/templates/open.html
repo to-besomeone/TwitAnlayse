@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Twit Analyzer</title>
+</head>
+<body>
+    <div class="insert-page">
+        <div class="form">
+            <form class="register-form">
+                <input type="text" placeholder = "What keyword do you want to analyze?">
+                <input autocomplete="off" type="text" name="since" id="since-when" placeholder="choose a date" readonly>
+                <input autocomplete="off" type="text" name="until" id="until-when" placeholder="choose a date" readonly>
+                <p class="message">input your e-mail</p>
+                <input type="email" name="email" id="email" placeholder="e-mail">
+                <button type="submit" class="btn btn-primary mb-2">search</button>
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>

@@ -6,76 +6,130 @@
 
 
 {% block body %}
+    <div class="insert-page">
+        <div class="form">
+            <p class="title">Twitter Analyzer</p>
+            <form class="register-form" action="/" method="POST">
+                <input type="text" name="content" placeholder = "What keyword do you want to analyze?">
+                <input autocomplete="off" type="text" name="since" id="since-when" placeholder="choose a date" readonly>
+                <input autocomplete="off" type="text" name="until" id="until-when" placeholder="choose a date" readonly>
+                <script>
+                    $('#since-when').datepicker({
+                        changeMonth: true,
+                        changeYear: true,
+                        dateFormat: "yy-mm-dd",
+                        maxDate: "0",
+                        onClose: function(selectedDate){
+                            $('#until-when').datepicker("option", "minDate", selectedDate);
+                            var date = $(this).datepicker('getDate');
+                            date.setHours(0, 0, 0, 0)
+                            var today = new Date();
+                            today.setHours(0, 0, 0, 0);
 
-    <div class="content">
-        <section class="blue-content">
-            <div class="app-name">
-                <h1>Twitter Keyword Analyzer</h1>
-            </div>
-            <div class="search-box">
-                <form action="/" method="POST">
-                    <div class="form-group">
-                        <input type="text" class="form-control" name="content" id="keyword-input" placeholder="What keyword do you want to analyze?">
-                    </div>
-                    <div class="form-group mx-sm-3 mb-2">
-                        <input autocomplete = "off" type="text" name="since" id="since-when" placeholder="choose a date" readonly>
-                        <input autocomplete = "off" type="text" name="until" id="until-when" placeholder="choose a date" readonly>
-                        <script>
-                            $('#since-when').datepicker({
-                                changeMonth: true,
-                                changeYear: true,
-                                dateFormat: "yy-mm-dd",
-                                maxDate: "-3d",
-                                onClose: function(selectedDate){
-                                    $('#until-when').datepicker("option", "minDate", selectedDate);
-                                    var date = $(this).datepicker('getDate');
-                                    date.setDate(date.getDate()+3);
-                                    $('#until-when').datepicker("option", "maxDate", date);
-                                }
-                            });
-                            $('#until-when').datepicker({
-                                changeMonth: true,
-                                changeYear: true,
-                                dateFormat: "yy-mm-dd",
-                                maxDate: "0",
-                                onClose: function(selectedDate){
-                                    $('#since-when').datepicker("option", "maxDate", selectedDate);
-                                }
-                            });
-                        </script>
-                    </div>
-                    <div class="form-group mx-sm-3 mb-2">
-                        <input type="email" name="email" id="email" placeholder="e-mail">
-                        <script>
-                            $(document).onsubmit(function(){
-                                var emailPattern = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+\.([a-zA-Z0-9-]+)$/;
-                                if(!emailPattern.test($('#email').val())){
-                                    alert("Please recheck your email");
-                                    $('#email').focus();
-                                    return false;
-                                }
-                            })
-                        </script>
-                    </div>
-                    <button type="submit" class="btn btn-primary mb-2">search</button>
-                </form>
-            </div>
-            <table>
-                {% for tweet in tweets %}
-                    <tr>
-                        <th>User</th>
-                        <th>Tweet</th>
-                        <th>Date</th>
-                    </tr>
-                    <tr>
-                        <td>{{ tweet[0] }}</td>
-                        <td>{{ tweet[1] }}</td>
-                        <td>{{ tweet[2] }}</td>
-                    </tr>
-                {% endfor %}
-            </table>
-        </section>
-        <section class="white-content"></section>
+                            var diff = Math.abs(today.getTime() - date.getTime());
+                            diff = Math.ceil(diff / (1000*3600*24));
+                            if(diff <= 3) $('#until-when').datepicker("option", "maxDate", today);
+                            else{
+                                date.setDate(date.getDate()+3);
+                                $('#until-when').datepicker("option", "maxDate", date);
+                            }
+                        }
+                    });
+                    $('#until-when').datepicker({
+                        changeMonth: true,
+                        changeYear: true,
+                        dateFormat: "yy-mm-dd",
+                        maxDate: "0",
+                        onClose: function(selectedDate){
+                            $('#since-when').datepicker("option", "maxDate", selectedDate);
+                        }
+                    });
+                </script>
+                <p class="message">input your e-mail</p>
+                <input type="email" name="email" id="email" placeholder="e-mail">
+                <button type="submit">search</button>
+                <script>
+                    $(document).onsubmit(function(){
+                        var emailPattern = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+\.([a-zA-Z0-9-]+)$/;
+                        if(!emailPattern.test($('#email').val())){
+                            alert("Please recheck your email");
+                            $('#email').focus();
+                            return false;
+                        }
+                    });
+                </script>
+            </form>
+        </div>
     </div>
+{#    <div class="content">#}
+{#        <section class="blue-content">#}
+{#            <div class="app-name">#}
+{#                <h1>Twitter Keyword Analyzer</h1>#}
+{#            </div>#}
+{#            <div class="search-box">#}
+{#                <form action="/" method="POST">#}
+{#                    <div class="form-group">#}
+{#                        <input type="text" class="form-control" name="content" id="keyword-input" placeholder="What keyword do you want to analyze?">#}
+{#                    </div>#}
+{#                    <div class="form-group mx-sm-3 mb-2">#}
+{#                        <input autocomplete = "off" type="text" name="since" id="since-when" placeholder="choose a date" readonly>#}
+{#                        <input autocomplete = "off" type="text" name="until" id="until-when" placeholder="choose a date" readonly>#}
+{#                        <script>#}
+{#                            $('#since-when').datepicker({#}
+{#                                changeMonth: true,#}
+{#                                changeYear: true,#}
+{#                                dateFormat: "yy-mm-dd",#}
+{#                                maxDate: "-3d",#}
+{#                                onClose: function(selectedDate){#}
+{#                                    $('#until-when').datepicker("option", "minDate", selectedDate);#}
+{#                                    var date = $(this).datepicker('getDate');#}
+{#                                    date.setDate(date.getDate()+3);#}
+{#                                    $('#until-when').datepicker("option", "maxDate", date);#}
+{#                                }#}
+{#                            });#}
+{#                            $('#until-when').datepicker({#}
+{#                                changeMonth: true,#}
+{#                                changeYear: true,#}
+{#                                dateFormat: "yy-mm-dd",#}
+{#                                maxDate: "0",#}
+{#                                onClose: function(selectedDate){#}
+{#                                    $('#since-when').datepicker("option", "maxDate", selectedDate);#}
+{#                                }#}
+{#                            });#}
+{#                        </script>#}
+{#                    </div>#}
+{#                    <div class="form-group mx-sm-3 mb-2">#}
+{#                        <input type="email" name="email" id="email" placeholder="e-mail">#}
+{#                        <script>#}
+{#                            $(document).onsubmit(function(){#}
+{#                                var emailPattern = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+\.([a-zA-Z0-9-]+)$/;#}
+{#                                if(!emailPattern.test($('#email').val())){#}
+{#                                    alert("Please recheck your email");#}
+{#                                    $('#email').focus();#}
+{#                                    return false;#}
+{#                                }#}
+{#                            })#}
+{#                        </script>#}
+{#                    </div>#}
+{#                    <button type="submit" class="btn btn-primary mb-2">search</button>#}
+{#                </form>#}
+{#            </div>#}
+        <table>
+            {% for tweet in tweets %}
+                <tr>
+                    <th>User</th>
+                    <th>Tweet</th>
+                    <th>Date</th>
+                </tr>
+                <tr>
+                    <td>{{ tweet[0] }}</td>
+                    <td>{{ tweet[1] }}</td>
+                    <td>{{ tweet[2] }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+{#        </section>#}
+{#        <section class="white-content"></section>#}
+{#    </div>#}
 
 {% endblock %}
